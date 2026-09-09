@@ -1,20 +1,476 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>検索結果</h2>
+<style>
+  body {
+    margin: 0;
+    background: #efefef;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    color: #1c1c1c;
+  }
 
-{% if results %}
-  <ul>
-    {% for shelter in results %}
-    <li>{{ shelter.name }}</li>
-    {% endfor %}
-  </ul>
-{% else %}
-  <p>該当する避難所が見つかりませんでした</p>
-{% endif %}
+  .page-shell {
+    max-width: 1100px;
+    margin: 28px auto;
+    padding: 0 18px 32px;
+  }
 
-<p>
-  <a href="/shelter_search">検索画面に戻る</a> |
-  <a href="/">トップページへ戻る</a>
-</p>
+  .page-title {
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .page-title .step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #e8f0f7;
+    color: #1b1b1b;
+    font-size: 22px;
+    font-weight: 700;
+    box-shadow: inset 0 0 0 2px #d5dbe3;
+  }
+
+  .panel {
+    background: #f5f5f5;
+    border: 1px solid #cfcfcf;
+    border-radius: 0;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    background: rgba(173, 182, 189, 0.68);
+    padding: 14px 18px;
+    font-size: 22px;
+    font-weight: 700;
+    border-bottom: 1px solid #b4b9be;
+  }
+
+  .tab-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin: 0 0 22px;
+    background: #eef2f3;
+  }
+
+  .tab-bar a {
+    flex: 1 1 180px;
+    display: block;
+    padding: 16px 10px;
+    background: #cfe1ec;
+    border: 1px solid #b8c8d6;
+    text-align: center;
+    text-decoration: none;
+    color: #1c1c1c;
+    font-weight: 700;
+    font-size: 16px;
+    transition: 0.2s ease;
+  }
+
+  .tab-bar a:hover {
+    background: #bfdcea;
+  }
+
+  .tab-bar a.active {
+    background: #a9d4ea;
+    border-color: #91bfd7;
+  }
+
+  .results-layout {
+    display: grid;
+    grid-template-columns: 1.05fr 1.35fr;
+    gap: 0;
+    background: #f5f5f5;
+    border: 1px solid #cfcfcf;
+  }
+
+  .list-panel {
+    background: #f5f5f5;
+    border-right: 1px solid #cfcfcf;
+    min-height: 520px;
+    padding: 20px 20px 0;
+  }
+
+  .shelter-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .shelter-item {
+    margin-bottom: 28px;
+    padding-left: 22px;
+    position: relative;
+    color: #1f1f1f;
+  }
+
+  .shelter-item::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 38px;
+    line-height: 1;
+    color: #1f1f1f;
+  }
+
+  .shelter-name-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #1f1f1f;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .shelter-name-button.active {
+    color: #0f4c81;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+
+  .shelter-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .shelter-actions a {
+    display: inline-block;
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid #9bb7c8;
+    background: #dfeef4;
+    color: #1c1c1c;
+  }
+
+  .shelter-meta {
+    font-size: 16px;
+    line-height: 1.7;
+    color: #2f2f2f;
+  }
+
+  .shelter-meta strong {
+    font-weight: 700;
+  }
+
+  .distance-line {
+    margin-top: 4px;
+    font-size: 16px;
+    color: #1d5c8d;
+    font-weight: 700;
+  }
+
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    font-size: 15px;
+    flex-wrap: wrap;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    border: 1px solid transparent;
+  }
+
+  .status-badge.open {
+    background: #dff3e5;
+    border-color: #9cd3a8;
+    color: #126c3a;
+  }
+
+  .status-badge.closed {
+    background: #fbe7e7;
+    border-color: #e5a0a0;
+    color: #a33838;
+  }
+
+  .update-line {
+    margin-top: 6px;
+    font-size: 15px;
+    color: #4a4a4a;
+  }
+
+  .map-panel {
+    background: #f5f5f5;
+    min-height: 520px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .map-status {
+    font-size: 14px;
+    color: #4d4d4d;
+    margin-bottom: 8px;
+  }
+
+  #shelterMap {
+    width: 100%;
+    height: 100%;
+    min-height: 420px;
+    border: 1px solid #c7c7c7;
+    background: #dfeef5;
+  }
+
+  .map-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 18px;
+  }
+
+  .back-button {
+    display: inline-block;
+    background: #cfe1ec;
+    border: 1px solid #b8c8d6;
+    color: #1f1f1f;
+    text-decoration: none;
+    font-weight: 700;
+    padding: 16px 28px;
+    min-width: 200px;
+    text-align: center;
+  }
+
+  @media (max-width: 900px) {
+    .results-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .list-panel {
+      border-right: none;
+      border-bottom: 1px solid #cfcfcf;
+    }
+  }
+</style>
+
+<div class="page-shell">
+  <h1 class="page-title"><span class="step">③</span>避難所検索結果表示画面</h1>
+
+  <div class="panel">
+    <div class="panel-header">避難所検索結果</div>
+
+    <div class="tab-bar">
+      <a href="/">ホーム</a>
+      <a href="/shelter_search" class="active">避難所検索</a>
+      <a href="/shelter_register">避難所登録</a>
+      <a href="/board">指示・発信ボード</a>
+    </div>
+
+    {% if results %}
+      <div class="results-layout">
+        <div class="list-panel">
+          <ul class="shelter-list">
+            {% for shelter in results %}
+              <li class="shelter-item">
+                <button type="button" class="shelter-name-button" data-shelter-id="{{ shelter.id }}">{{ shelter.name }}</button>
+                <div class="shelter-meta">
+                  {% if shelter.district %}
+                    <strong>地区:</strong> {{ shelter.district }}<br>
+                  {% endif %}
+                  {% if shelter.address %}
+                    <strong>住所:</strong> {{ shelter.address }}<br>
+                  {% endif %}
+                  <div class="distance-line">現在地から <span data-distance-for="{{ shelter.id }}">計算中...</span></div>
+                  <div class="status-row">
+                    <span class="status-badge {{ 'open' if shelter.is_open else 'closed' }}">
+                      {{ '開設中' if shelter.is_open else '閉設中' }}
+                    </span>
+                    <span>混雑状況: {{ shelter.congestion or '情報なし' }}</span>
+                  </div>
+                  <div class="update-line">最終更新時間: {{ shelter.updated_at or '未更新' }}</div>
+                  <div class="shelter-actions">
+                    <a href="/shelter_detail/{{ shelter.id }}">詳細を見る</a>
+                    <a href="/shelter_route/{{ shelter.id }}">経路を見る</a>
+                  </div>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="map-panel">
+          <div class="map-status" id="mapStatus">現在地を取得しています...</div>
+          <div id="shelterMap" aria-label="避難所マップ"></div>
+          <div class="map-footer">
+            <a href="/shelter_search" class="back-button">検索条件を変更</a>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="panel" style="border-top: 1px solid #cfcfcf; padding: 32px 20px;">
+        <p style="margin: 0; font-size: 18px;">該当する避難所が見つかりませんでした</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const shelters = {{ results|tojson|safe }};
+    const mapContainer = document.getElementById('shelterMap');
+    const mapStatus = document.getElementById('mapStatus');
+    const nameButtons = document.querySelectorAll('.shelter-name-button');
+
+    if (!mapContainer || !Array.isArray(shelters) || shelters.length === 0) {
+      return;
+    }
+
+    const map = L.map('shelterMap').setView([40.8244, 140.7400], 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const validShelters = shelters.filter((shelter) => {
+      const lat = Number(shelter.latitude);
+      const lng = Number(shelter.longitude);
+      return Number.isFinite(lat) && Number.isFinite(lng);
+    });
+
+    const markers = new Map();
+    const bounds = [];
+
+    validShelters.forEach((shelter) => {
+      const marker = L.circleMarker([shelter.latitude, shelter.longitude], {
+        radius: 8,
+        color: '#1f5ba7',
+        fillColor: '#60a5fa',
+        fillOpacity: 0.9,
+        weight: 2
+      }).addTo(map);
+
+      marker.bindPopup(`
+        <div style="font-weight: 700; margin-bottom: 4px;">${shelter.name}</div>
+        <div>${shelter.address || ''}</div>
+        <div>開設状況: ${shelter.is_open ? '開設中' : '閉設中'}</div>
+        <div>混雑状況: ${shelter.congestion || '情報なし'}</div>
+      `);
+
+      marker.on('click', function () {
+        highlightShelter(Number(shelter.id));
+      });
+
+      markers.set(Number(shelter.id), marker);
+      bounds.push([shelter.latitude, shelter.longitude]);
+    });
+
+    if (bounds.length > 0) {
+      map.fitBounds(bounds, { padding: [20, 20] });
+    }
+
+    function highlightShelter(shelterId) {
+      markers.forEach((marker, id) => {
+        const selected = id === shelterId;
+        marker.setRadius(selected ? 14 : 8);
+        marker.setStyle({
+          color: selected ? '#b45309' : '#1f5ba7',
+          fillColor: selected ? '#f59e0b' : '#60a5fa',
+          weight: selected ? 3 : 2,
+          fillOpacity: 0.95
+        });
+      });
+
+      const selectedMarker = markers.get(shelterId);
+      if (selectedMarker) {
+        selectedMarker.openPopup();
+        map.panTo(selectedMarker.getLatLng());
+      }
+
+      nameButtons.forEach((button) => {
+        const isActive = Number(button.dataset.shelterId) === shelterId;
+        button.classList.toggle('active', isActive);
+      });
+    }
+
+    nameButtons.forEach((button) => {
+      button.addEventListener('click', function () {
+        highlightShelter(Number(button.dataset.shelterId));
+      });
+    });
+
+    function toKm(distanceMeters) {
+      return (distanceMeters / 1000).toFixed(1);
+    }
+
+    function updateDistanceLabels(userLatLng) {
+      const distanceNodes = document.querySelectorAll('[data-distance-for]');
+
+      distanceNodes.forEach((node) => {
+        const shelterId = Number(node.getAttribute('data-distance-for'));
+        const shelter = validShelters.find((item) => Number(item.id) === shelterId);
+
+        if (!shelter) {
+          node.textContent = '距離なし';
+          return;
+        }
+
+        const shelterLatLng = [Number(shelter.latitude), Number(shelter.longitude)];
+        const distance = map.distance(userLatLng, shelterLatLng);
+        node.textContent = `${toKm(distance)} km`;
+      });
+    }
+
+    function showCurrentLocation(lat, lng) {
+      const userLatLng = [lat, lng];
+
+      if (window.currentLocationMarker) {
+        window.currentLocationMarker.setLatLng(userLatLng);
+      } else {
+        window.currentLocationMarker = L.circleMarker(userLatLng, {
+          radius: 8,
+          color: '#1d4ed8',
+          weight: 2,
+          fillColor: '#60a5fa',
+          fillOpacity: 0.9
+        }).addTo(map);
+      }
+
+      window.currentLocationMarker.bindPopup('現在地');
+      mapStatus.textContent = '現在地を表示しています';
+      updateDistanceLabels(userLatLng);
+      map.setView(userLatLng, 12);
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        function (position) {
+          showCurrentLocation(position.coords.latitude, position.coords.longitude);
+        },
+        function () {
+          mapStatus.textContent = '現在地の取得に失敗したため、避難所の位置を表示しています';
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    } else {
+      mapStatus.textContent = 'このブラウザでは現在地の取得ができないため、避難所の位置のみ表示しています';
+    }
+  });
+</script>
 {% endblock %}

@@ -294,6 +294,27 @@ def all_shelters():
     return render_template('search_results.html', results=shelters)
 
 
+def get_shelter_by_id(shelter_id):
+    """避難所IDから避難所情報を取得する"""
+    return next((s for s in shelters if s.get('id') == shelter_id), None)
+
+
+@app.route('/shelter_detail/<int:shelter_id>')
+def shelter_detail(shelter_id):
+    shelter = get_shelter_by_id(shelter_id)
+    if shelter is None:
+        return redirect(url_for('shelter_search'))
+    return render_template('shelter_detail.html', shelter=shelter)
+
+
+@app.route('/shelter_route/<int:shelter_id>')
+def shelter_route(shelter_id):
+    shelter = get_shelter_by_id(shelter_id)
+    if shelter is None:
+        return redirect(url_for('shelter_search'))
+    return render_template('shelter_route.html', shelter=shelter)
+
+
 # 指示ボード：住民向けの指示を一覧で確認する
 @app.route('/board')
 @login_required

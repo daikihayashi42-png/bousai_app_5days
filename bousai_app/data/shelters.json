@@ -1,22 +1,57 @@
 [
   {
     "id": 1,
-    "name": "御所見小学校"
+    "name": "御所見小学校",
+    "district": "青森市",
+    "address": "青森市大字御所見字前沢",
+    "latitude": 40.8263,
+    "longitude": 140.7482,
+    "is_open": true,
+    "congestion": "空いています",
+    "updated_at": "2026-09-09 10:30"
   },
   {
     "id": 2,
-    "name": "片瀬小学校"
+    "name": "片瀬小学校",
+    "district": "青森市",
+    "address": "青森市片瀬2丁目",
+    "latitude": 40.8145,
+    "longitude": 140.7248,
+    "is_open": true,
+    "congestion": "やや混雑",
+    "updated_at": "2026-09-09 10:45"
   },
   {
-    "id": 5,
-    "name": "鵠洋小学校"
+    "id": 3,
+    "name": "鵠洋小学校",
+    "district": "青森市",
+    "address": "青森市鵠谷1丁目",
+    "latitude": 40.8351,
+    "longitude": 140.7599,
+    "is_open": false,
+    "congestion": "閉設中",
+    "updated_at": "2026-09-09 09:55"
   },
   {
     "id": 4,
-    "name": "a"
+    "name": "a",
+    "district": "青森市",
+    "address": "青森市中央1丁目",
+    "latitude": 40.8231,
+    "longitude": 140.7361,
+    "is_open": true,
+    "congestion": "混雑",
+    "updated_at": "2026-09-09 10:15"
   },
   {
     "id": 5,
-    "name": "テスト避難所"
+    "name": "テスト避難所",
+    "district": "青森市",
+    "address": "青森市浜館1丁目",
+    "latitude": 40.8318,
+    "longitude": 140.7678,
+    "is_open": true,
+    "congestion": "空いています",
+    "updated_at": "2026-09-09 10:05"
   }
 ]

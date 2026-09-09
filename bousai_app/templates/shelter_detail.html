@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  body {
+    margin: 0;
+    background: #efefef;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    color: #1c1c1c;
+  }
+
+  .page-shell {
+    max-width: 1100px;
+    margin: 28px auto;
+    padding: 0 18px 32px;
+  }
+
+  .page-title {
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .page-title .step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #e8f0f7;
+    color: #1b1b1b;
+    font-size: 22px;
+    font-weight: 700;
+    box-shadow: inset 0 0 0 2px #d5dbe3;
+  }
+
+  .panel {
+    background: #f5f5f5;
+    border: 1px solid #cfcfcf;
+    padding: 24px;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 24px;
+  }
+
+  .info-box {
+    background: #ffffff;
+    border: 1px solid #d4d4d4;
+    padding: 18px;
+  }
+
+  .info-box h3 {
+    margin: 0 0 12px;
+    font-size: 22px;
+  }
+
+  .info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.9;
+  }
+
+  .info-list li {
+    border-bottom: 1px solid #ececec;
+    padding: 6px 0;
+  }
+
+  .status-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+    background: #dff3e5;
+    border: 1px solid #9cd3a8;
+    color: #126c3a;
+  }
+
+  .status-tag.closed {
+    background: #fbe7e7;
+    border-color: #e5a0a0;
+    color: #a33838;
+  }
+
+  .action-row {
+    margin-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .action-button {
+    display: inline-block;
+    padding: 12px 18px;
+    background: #cfe1ec;
+    border: 1px solid #b8c8d6;
+    text-decoration: none;
+    color: #1c1c1c;
+    font-weight: 700;
+  }
+
+  @media (max-width: 820px) {
+    .detail-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="page-shell">
+  <h1 class="page-title"><span class="step">④</span>避難所詳細</h1>
+
+  <div class="panel">
+    <div class="detail-grid">
+      <div class="info-box">
+        <h3>{{ shelter.name }}</h3>
+        <ul class="info-list">
+          <li><strong>地区:</strong> {{ shelter.district or '未登録' }}</li>
+          <li><strong>住所:</strong> {{ shelter.address or '未登録' }}</li>
+          <li><strong>開設状況:</strong>
+            <span class="status-tag {{ 'closed' if not shelter.is_open else '' }}">
+              {{ '開設中' if shelter.is_open else '閉設中' }}
+            </span>
+          </li>
+          <li><strong>混雑状況:</strong> {{ shelter.congestion or '情報なし' }}</li>
+          <li><strong>最終更新時間:</strong> {{ shelter.updated_at or '未更新' }}</li>
+          <li><strong>緯度:</strong> {{ shelter.latitude or '未登録' }}</li>
+          <li><strong>経度:</strong> {{ shelter.longitude or '未登録' }}</li>
+        </ul>
+
+        <div class="action-row">
+          <a class="action-button" href="/shelter_route/{{ shelter.id }}">経路を見る</a>
+          <a class="action-button" href="/all_shelters">検索結果に戻る</a>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <h3>施設補助情報</h3>
+        <p>車椅子対応トイレあり</p>
+        <p>乳幼児向け休憩スペースあり</p>
+        <p>非常食・水の備蓄あり</p>
+        <p>医療支援が可能なスタッフ配置</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  body {
+    margin: 0;
+    background: #efefef;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    color: #1c1c1c;
+  }
+
+  .page-shell {
+    max-width: 1100px;
+    margin: 28px auto;
+    padding: 0 18px 32px;
+  }
+
+  .page-title {
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .page-title .step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #e8f0f7;
+    color: #1b1b1b;
+    font-size: 22px;
+    font-weight: 700;
+    box-shadow: inset 0 0 0 2px #d5dbe3;
+  }
+
+  .panel {
+    background: #f5f5f5;
+    border: 1px solid #cfcfcf;
+    padding: 24px;
+  }
+
+  .route-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .route-summary {
+    background: #ffffff;
+    border: 1px solid #d4d4d4;
+    padding: 18px;
+  }
+
+  .route-summary h3 {
+    margin: 0 0 10px;
+    font-size: 22px;
+  }
+
+  .route-card {
+    background: #ffffff;
+    border: 1px solid #d4d4d4;
+    padding: 18px;
+  }
+
+  .route-card h4 {
+    margin: 0 0 12px;
+    font-size: 18px;
+  }
+
+  .route-steps {
+    list-style: decimal;
+    padding-left: 22px;
+    margin: 0;
+    line-height: 1.8;
+    font-size: 16px;
+  }
+
+  .action-row {
+    margin-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .action-button {
+    display: inline-block;
+    padding: 12px 18px;
+    background: #cfe1ec;
+    border: 1px solid #b8c8d6;
+    text-decoration: none;
+    color: #1c1c1c;
+    font-weight: 700;
+  }
+</style>
+
+<div class="page-shell">
+  <h1 class="page-title"><span class="step">⑤</span>経路案内</h1>
+
+  <div class="panel">
+    <div class="route-grid">
+      <div class="route-summary">
+        <h3>{{ shelter.name }} までの最短経路</h3>
+        <p>現在地を基準にした最短経路の候補を表示します。</p>
+        <p><strong>到着予定:</strong> 約 1.2 km / 15分</p>
+      </div>
+
+      <div class="route-card">
+        <h4>経路手順</h4>
+        <ol class="route-steps">
+          <li>現在地から南東方向へ進みます。</li>
+          <li>{{ shelter.address or '避難所住所' }}の方向へ直進します。</li>
+          <li>交差点を右折し、避難所の入口に進入します。</li>
+          <li>避難所の受付前で到着します。</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <a class="action-button" href="/shelter_detail/{{ shelter.id }}">詳細に戻る</a>
+      <a class="action-button" href="/all_shelters">検索結果に戻る</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
